@@ -4,7 +4,7 @@
 using namespace std;
 
 class DoublyEdgeLinkedList;
-vector<int> adj[200001];
+vector<int> adj[20001];
 class vertex {									//vertex class에 대하여	
 public:
 	DoublyEdgeLinkedList* incidentEdgeList;     //임의의 모든 vertex A는 A와 incident 한 모든 edge들을 이중링크드리스트로 가지고 있다.
@@ -283,6 +283,7 @@ public:
 		return flag;
 	}
 };
+//////////////////code above this line is given-code/////////////
 void DFS(vertex* V) {
 	cout << V->data << " ";
 	V->visited = true;
@@ -290,13 +291,15 @@ void DFS(vertex* V) {
 	while (1) {
 		if (E->back == false && E->discovery == false)
 		{
-			vertex* W = E->destination == V ? E->source : E->destination;
+			vertex* W = (E->destination == V ? E->source : E->destination);
 			if (W->visited == false)
 			{
-				E->discovery = true;
+				E->myself_InTotal_EdgeList->discovery = true;
 				DFS(W);
 			}
-			else E->back = true;
+			else {
+				E->myself_InTotal_EdgeList->back = true;
+			}
 		}
 		if (E != V->incidentEdgeList->tail)
 			E = E->next;
@@ -314,10 +317,10 @@ int main() {
 		cin >> temp1;
 		g->insert_vertex(temp1);
 	}
-
 	bool ex = false;
 	for (int i = 0; i < M; i++) {
 		cin >> temp1 >> temp2;
+		ex = false;		//boolean has to be false every time
 		for (int j = 0; j < adj[temp1].size(); j++)
 		{
 			if (adj[temp1][j] == temp2)
@@ -335,31 +338,41 @@ int main() {
 		else cout << -1 << endl;
 	}
 	vertex* a = g->TotalvertexList->head;
-	for (vertex* it = g->TotalvertexList->head;; it = it->next)
+	vertex* it = g->TotalvertexList->head;
+	while(1)
 	{
 		if (it->data == A)
 		{
 			a = it;
 			break;
 		}
-		if (it == g->TotalvertexList->tail) break;
+		if (it != g->TotalvertexList->tail)
+			it = it->next;
+		else break;
 	}
-
-	for (vertex* it = a;; it = it->next)
-	{
+	it = a;
+	while(1){
 		if (it->visited == false)
 			DFS(it);
-		if (it == g->TotalvertexList->tail)
-			break;
+		if (it != g->TotalvertexList->tail)
+			it = it->next;
+		else break;
 	}
-
-	for(vertex* it=g->TotalvertexList->head;;it=it->next)
+	it=g->TotalvertexList->head;
+	if (a != g->TotalvertexList->head)
 	{
-		if (it->visited == false)
-			DFS(it);
-		if (it->next == a)
-			break;
+		while (1)
+		{
+			if (it->visited == false)
+				DFS(it);
+			if (it->next != a)
+				it = it->next;
+			else
+				break;
+		}
 	}
 	delete g;
+	delete it;
+	delete a;
 	return 0;
 }
